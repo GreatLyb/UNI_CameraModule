@@ -159,7 +159,13 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
         });
         cameraManager = new CameraManager();
         showLog("SDK版本：" + cameraManager.GetSDKVersion());
-
+        Log.e("Lyb", "SDK版本" + cameraManager.GetSDKVersion());
+        int nRet1 = cameraManager.setFloatValue("ExposureTime", 1400000f);
+        if (nRet1 == 0) {
+            Log.e("Lyb", "设置曝光时间成功");
+        } else {
+            showLog("设置曝光时间失败:" + Integer.toHexString(nRet1));
+        }
         int nTransLayers = MvCameraControl.MV_CC_EnumerateTls();
         if (nTransLayers == MvCameraControlDefines.MV_GIGE_DEVICE) {
             showLog("GigeDevice");
@@ -168,7 +174,6 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
         } else if (nTransLayers == (MvCameraControlDefines.MV_GIGE_DEVICE + MvCameraControlDefines.MV_USB_DEVICE)) {
             showLog("GigeDevice and UsbDevice");
         }
-
 
 
     }
@@ -383,13 +388,13 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
                 return;
             }
             //MvCameraControlDefines.MVCC_FLOATVALUE floatvalue = new MvCameraControlDefines.MVCC_FLOATVALUE();
-//                int nRet = cameraManager.getFloatValue(key, floatvalue);
-//                if (nRet == 0) {
-//                    String string = "当前值：" + floatvalue.curValue + "--最大值" + floatvalue.max + "--最小值" + floatvalue.min;
-//                    showLog("获取值成功：" + string);
-//                } else {
-//                    showLog("获取失败：" + Integer.toHexString(nRet));
-//                }
+            //                int nRet = cameraManager.getFloatValue(key, floatvalue);
+            //                if (nRet == 0) {
+            //                    String string = "当前值：" + floatvalue.curValue + "--最大值" + floatvalue.max + "--最小值" + floatvalue.min;
+            //                    showLog("获取值成功：" + string);
+            //                } else {
+            //                    showLog("获取失败：" + Integer.toHexString(nRet));
+            //                }
 
             //ChunkModeActive
 
@@ -595,7 +600,6 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
 
             int nRetW = cameraManager.getIntValue("Width", width);
             int nRetH = cameraManager.getIntValue("Height", height);
-
             if (nRetW == MV_OK && nRetH == MV_OK) {
                 if (bytes == null) {
                     bytes = new byte[width * height * 3];
@@ -608,6 +612,7 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
                 showLog("获取图像宽高失败");
                 return;
             }
+            info.exposureTime = 800000f;
 
 
             while (runFlag) {
@@ -617,8 +622,6 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
 
                         updateImage(bytes);
 
-
-                        /*
                         String str =
                                 "width--------------" + info.width + "\n" +
                                         "height-------------" + info.height + "\n" +
@@ -648,11 +651,7 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
                                         "lostPacket---------" + info.lostPacket;
 
 
-
-
-*/
-
-                        //   showLog(str);
+                        Log.e("Lyb", "" + str);
 
                     }
 
@@ -808,13 +807,10 @@ public class DemoMainActivity extends AppCompatActivity implements View.OnClickL
             });
 
 
-
-
             nRet = cameraManager.startDevice();
             if (nRet != MvCameraControlDefines.MV_OK) {
                 showLog("startDevice" + Integer.toHexString(nRet));
             }
-
 
 
             updateButton(ButtonState.STARtGRAB);
