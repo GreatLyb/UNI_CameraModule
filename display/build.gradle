@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace 'com.uni.cameraplugin'
+    namespace 'com.uni.display'
     compileSdk 33
 
     defaultConfig {
@@ -20,11 +20,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['libs']
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -32,13 +27,7 @@ android {
 }
 
 dependencies {
-    // 可以一条依赖引入libs下所有的aar
-    implementation fileTree(dir: 'libs', include: ['*.aar','*.jar'])
-    // 也可以指定依赖某一个aar
-    //    implementation (name: 'myaardemo-release', ext: 'aar')
+    api fileTree(dir: 'libs', include: ['*.aar','*.jar'])
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    api 'com.jaredrummler:material-spinner:1.3.1'
-    implementation project(":display")
 }
