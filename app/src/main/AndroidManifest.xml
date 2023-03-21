@@ -12,7 +12,7 @@
         android:theme="@style/Theme.UNI_CameraModule"
         tools:targetApi="31">
         <activity
-            android:name="com.uni.cameraplugin.activity.DemoMainActivity"
+            android:name="com.uni.cameraplugin.activity.CameraActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
