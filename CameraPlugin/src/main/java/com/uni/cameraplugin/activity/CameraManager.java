@@ -71,6 +71,9 @@ public class CameraManager {
     public int getOneFrameTimeout(byte[] datas, MvCameraControlDefines.MV_FRAME_OUT_INFO info, int time) {
         return MvCameraControl.MV_CC_GetOneFrameTimeout(handle, datas, info, time);
     }
+    public int getBitMapTimeout(byte[] datas, MvCameraControlDefines.MV_FRAME_OUT_INFO info, int time) {
+        return MvCameraControl.MV_CC_GetBitmapTimeout(handle, datas, info, time);
+    }
 
     public void setImageNodeNumBt(int num) {
         int nRet = MvCameraControl.MV_CC_SetImageNodeNum(handle, num);
@@ -232,6 +235,9 @@ public class CameraManager {
 
     public int convertPixelType(MvCameraControlDefines.MV_CC_PIXEL_CONVERT_PARAM param) {
         return MvCameraControl.MV_CC_ConvertPixelType(handle, param);
+    }
+    public int SaveImage(MvCameraControlDefines.MV_SAVE_IMAGE_PARAM param) {
+        return MvCameraControl.MV_CC_SaveImage(handle, param);
     }
 
 

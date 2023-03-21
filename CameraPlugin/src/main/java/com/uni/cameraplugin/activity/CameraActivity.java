@@ -1,23 +1,33 @@
 package com.uni.cameraplugin.activity;
 
 import MvCameraControlWrapper.CameraControlException;
+import MvCameraControlWrapper.MvCameraControl;
 import MvCameraControlWrapper.MvCameraControlDefines;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.displayimage.IGlobalLayout;
 import com.example.displayimage.MultipleGLSurfaceView;
 import com.example.displayimage.PixelFormat;
 import com.uni.cameraplugin.R;
-import com.uni.cameraplugin.ui.ButtonState;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import static MvCameraControlWrapper.MvCameraControlDefines.MV_OK;
@@ -26,6 +36,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private TextView tvLog;
     private RelativeLayout glViewGroup;
+    private ImageView imgTest;
 
     private CameraManager cameraManager;
     private ArrayList<MvCameraControlDefines.MV_CC_DEVICE_INFO> deviceList = new ArrayList<>();
@@ -39,6 +50,7 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
         tvLog = findViewById(R.id.tv_log);
         glViewGroup = findViewById(R.id.glViewGroup);
+        imgTest = findViewById(R.id.img_test);
 
         initDevice();
     }
@@ -73,14 +85,23 @@ public class CameraActivity extends AppCompatActivity {
     private void setLog(boolean errorMsg, String msg) {
         runOnUiThread(() -> {
             tvLog.append("\n");
-            tvLog.append(msg);
-//            tvLog.setText(msg);
-//            tvLog.setTextColor(errorMsg ? Color.parseColor("#eb4035") : Color.parseColor("#000000"));
+            tvLog.append(errorMsg ? "错误信息" : "" + msg);
+            //            tvLog.setText(msg);
+            //            tvLog.setTextColor(errorMsg ? Color.parseColor("#eb4035") : Color.parseColor("#000000"));
         });
     }
 
     public void getImage(View view) {
 
+        if (!takePhoto && canTakePhoto && !dealingPhoto) {
+            takePhoto = true;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(CameraActivity.this, "正在采集图像 请稍后...", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     @Override
@@ -114,6 +135,7 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+
     class OpenDeviceThread extends Thread {
         @Override
         public void run() {
@@ -125,8 +147,6 @@ public class CameraActivity extends AppCompatActivity {
                 } else {
                     setLog(false, "设备打开成功");
                     if (deviceList.get(0).transportLayerType == MvCameraControlDefines.MV_GIGE_DEVICE) {
-
-
                         int nPacketSize = cameraManager.getOptimalPacketSize();
                         if (nPacketSize > 0) {
                             nRet = cameraManager.setIntValue("GevSCPSPacketSize", nPacketSize);
@@ -143,7 +163,7 @@ public class CameraActivity extends AppCompatActivity {
                         if (nRet1 == 0) {
                             Log.e("Lyb", "设置曝光时间成功");
                         } else {
-                            setLog(true,"设置曝光时间失败:" + Integer.toHexString(nRet1));
+                            setLog(true, "设置曝光时间失败:" + Integer.toHexString(nRet1));
                         }
                         Integer GevSCPD = new Integer(0);
                         nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
@@ -184,7 +204,7 @@ public class CameraActivity extends AppCompatActivity {
                     }
 
 
-                    nRet = cameraManager.setEnumValue("PixelFormat", pixelFormatValue[0]);
+                    nRet = cameraManager.setEnumValue("PixelFormat", pixelFormatValue[2]);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(true, "set PixelFormat fail nRet = " + Integer.toHexString(nRet));
                     }
@@ -262,6 +282,9 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     GetOneFrameThread getOneFrameThread;
+    boolean takePhoto = false;
+    boolean canTakePhoto = false;
+    boolean dealingPhoto = false;
 
     class GetOneFrameThread extends Thread {
         boolean runFlag = true;
@@ -291,14 +314,13 @@ public class CameraActivity extends AppCompatActivity {
                 setLog(true, "获取图像宽高失败");
                 return;
             }
-            info.exposureTime = 800000f;
 
 
             while (runFlag) {
                 if (flag) {
-                    int nRet = cameraManager.getOneFrameTimeout(bytes, info, 1000);
+                    int nRet = cameraManager.getBitMapTimeout(bytes, info, 1000);
                     if (nRet == 0) {
-
+                        canTakePhoto = true;
                         updateImage(bytes);
 
                         String str =
@@ -331,7 +353,12 @@ public class CameraActivity extends AppCompatActivity {
 
 
                         Log.e("Lyb", "" + str);
-
+                        if (takePhoto) {
+                            takePhoto = false;
+                            dealingPhoto = true;
+                            //处理图像
+                            dealFrameToPicture(bytes, info);
+                        }
                     }
 
                 } else {
@@ -355,4 +382,26 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    private void dealFrameToPicture(byte[] bytes, MvCameraControlDefines.MV_FRAME_OUT_INFO info) {
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        //Bitmap转换成byte[]
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] datas = baos.toByteArray();
+        bytesToImageFile(datas);
+        runOnUiThread(() -> imgTest.setImageBitmap(bitmap));
+        dealingPhoto = false;
+    }
+
+    private void bytesToImageFile(byte[] bytes) {
+        try {
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/aaa.jpeg");
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bytes, 0, bytes.length);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
