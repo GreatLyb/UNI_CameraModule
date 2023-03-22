@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.displayimage.MultipleGLSurfaceView;
 import com.example.displayimage.PixelFormat;
 import com.uni.cameraplugin.R;
+import com.uni.cameraplugin.bean.CameraBean;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraProcess cameraProcess;
     private OpenDeviceThread openDeviceThread;
     private final int[] pixelFormatValue = {PixelFormat.MONO8, PixelFormat.YUV422, PixelFormat.RGB};
-    boolean debug = true;
+    private CameraBean cameraBean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,6 @@ public class CameraActivity extends AppCompatActivity {
         glViewGroup = findViewById(R.id.glViewGroup);
         imgTest = findViewById(R.id.img_test);
         btnTakePhoto = findViewById(R.id.tv_button);
-        debug = getIntent().getIntExtra("debug", 0) == 1;
         initDevice();
     }
 
@@ -55,8 +55,9 @@ public class CameraActivity extends AppCompatActivity {
      * 初始化设备
      */
     private void initDevice() {
-        cameraProcess = new CameraProcess(this);
         cameraManager = new CameraManager();
+        cameraProcess = new CameraProcess(this);
+        cameraBean = cameraProcess.getCameraBean();
         Log.e("Lyb", "SDK版本" + cameraManager.GetSDKVersion());
         setLog(false, "SDK版本" + cameraManager.GetSDKVersion());
         try {
@@ -79,11 +80,14 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * 日志输出信息
      *
-     * @param errorMsg
      * @param msg
      */
-    private void setLog(boolean errorMsg, String msg) {
-        if (debug) {
+    public void setLog(String msg) {
+        setLog(false, msg);
+    }
+
+    public void setLog(boolean errorMsg, String msg) {
+        if (cameraBean.getDebug() == 1) {
             runOnUiThread(() -> {
                 if (tvLog.getVisibility() == View.GONE) {
                     tvLog.setVisibility(View.VISIBLE);
@@ -160,46 +164,41 @@ public class CameraActivity extends AppCompatActivity {
                         } else {
                             setLog(true, "Warning: Get Packet Size fail nRet" + Integer.toHexString(nPacketSize));
                         }
-
+                        cameraProcess.initCameraPara(cameraManager, cameraBean);
                         int nRet1 = cameraManager.setFloatValue("ExposureTime", 700000f);
-                        if (nRet1 == MV_OK) {
-                            Log.e("Lyb", "设置曝光时间成功");
-                        } else {
-                            setLog(true, "设置曝光时间失败:" + Integer.toHexString(nRet1));
-                        }
-                        Integer GevSCPD = 0;
-                        nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
-                        if (nRet != MV_OK) {
-                            setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
-                        } else {
-                            setLog(false, "GevSCPD = " + GevSCPD);
-                        }
-
-                        nRet = cameraManager.setIntValue("GevSCPD", 2000);
-                        if (nRet == MV_OK) {
-                            setLog(false, "Set GevSCPD success");
-                        } else {
-                            setLog(true, "Set GevSCPD fail");
-                        }
-                        nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
-                        if (nRet != MV_OK) {
-                            setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
-                        } else {
-                            setLog(false, "GevSCPD = " + GevSCPD);
-                        }
+//                        Integer GevSCPD = 0;
+//                        nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
+//                        if (nRet != MV_OK) {
+//                            setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
+//                        } else {
+//                            setLog(false, "GevSCPD = " + GevSCPD);
+//                        }
+//
+//                        nRet = cameraManager.setIntValue("GevSCPD", 2000);
+//                        if (nRet == MV_OK) {
+//                            setLog(false, "Set GevSCPD success");
+//                        } else {
+//                            setLog(true, "Set GevSCPD fail");
+//                        }
+//                        nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
+//                        if (nRet != MV_OK) {
+//                            setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
+//                        } else {
+//                            setLog(false, "GevSCPD = " + GevSCPD);
+//                        }
                     }
-                    final Integer width = 0;
-                    nRet = cameraManager.getIntValue("Width", width);
-                    if (nRet != MvCameraControlDefines.MV_OK) {
-                        setLog(false, "get Width fail nRet = " + Integer.toHexString(nRet));
-                        return;
-                    }
-                    final Integer height = 0;
-                    nRet = cameraManager.getIntValue("Height", height);
-                    if (nRet != MvCameraControlDefines.MV_OK) {
-                        setLog(true, "get Height fail nRet = " + Integer.toHexString(nRet));
-                        return;
-                    }
+//                    final Integer width = 0;
+//                    nRet = cameraManager.getIntValue("Width", width);
+//                    if (nRet != MvCameraControlDefines.MV_OK) {
+//                        setLog(false, "get Width fail nRet = " + Integer.toHexString(nRet));
+//                        return;
+//                    }
+//                    final Integer height = 0;
+//                    nRet = cameraManager.getIntValue("Height", height);
+//                    if (nRet != MvCameraControlDefines.MV_OK) {
+//                        setLog(true, "get Height fail nRet = " + Integer.toHexString(nRet));
+//                        return;
+//                    }
                     nRet = cameraManager.setEnumValue("PixelFormat", pixelFormatValue[2]);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(true, "set PixelFormat fail nRet = " + Integer.toHexString(nRet));

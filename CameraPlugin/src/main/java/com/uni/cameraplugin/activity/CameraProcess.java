@@ -3,14 +3,18 @@ package com.uni.cameraplugin.activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.widget.Toast;
+import android.util.Log;
+import com.alibaba.fastjson.JSON;
+import com.uni.cameraplugin.bean.CameraBean;
+import com.uni.cameraplugin.bean.CameraParameterBean;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import MvCameraControlWrapper.MvCameraControlDefines;
 
@@ -81,5 +85,92 @@ class CameraProcess {
         }
         file.delete();
         return null;
+    }
+
+    public CameraBean getCameraBean() {
+//        String body = activity.getIntent().getStringExtra("body");
+        String body = obtainJson();
+        CameraBean bean = JSON.parseObject(body, CameraBean.class);
+        return bean;
+    }
+
+    private String obtainJson() {
+        CameraBean cameraBean = new CameraBean();
+        cameraBean.setDebug(0);
+        List<CameraParameterBean> beans = new ArrayList<>();
+        CameraParameterBean bean = new CameraParameterBean();
+        bean.setType("IBoolean");
+        bean.setKey("ADCGainEnable");//ADC 增益使能
+        bean.setValue("1");
+        beans.add(bean);
+        CameraParameterBean bean1 = new CameraParameterBean();
+        bean1.setType("IFloat");
+        bean1.setKey("ExposureTime");//曝光时间
+        bean1.setValue("1400000");
+        beans.add(bean1);
+        cameraBean.setParameterBeans(beans);
+        return JSON.toJSONString(cameraBean);
+    }
+
+    /**
+     * 初始化相机参数
+     *
+     * @param cameraManager
+     * @param cameraBean
+     */
+    public void initCameraPara(CameraManager cameraManager, CameraBean cameraBean) {
+        if (cameraBean.getParameterBeans() != null && cameraBean.getParameterBeans().size() > 0) {
+            int state = -1;
+            for (CameraParameterBean parameterBean : cameraBean.getParameterBeans()) {
+                switch (parameterBean.getType()) {
+                    case "IEnumeration":
+                        state = cameraManager.setEnumValue(parameterBean.getKey(), Integer.parseInt(parameterBean.getValue()));
+                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        break;
+                    case "IString":
+                        state = cameraManager.setStrValu(parameterBean.getKey(), parameterBean.getValue());
+                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        break;
+                    case "IInteger":
+                        long i = Long.parseLong(parameterBean.getValue());
+                        state = cameraManager.setIntValue(parameterBean.getKey(), i);
+                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + i + "---结果=" + state);
+                        break;
+                    case "IBoolean":
+                        boolean b = false;
+                        boolean legitimate = false;
+                        if (parameterBean.getValue().equals("true")) {
+                            b = true;
+                            legitimate = true;
+                        } else if (parameterBean.getValue().equals("false")) {
+                            b = false;
+                            legitimate = true;
+                        }
+                        if (legitimate) {
+                            state = cameraManager.setBoolValue(parameterBean.getKey(), b);
+                            activity.setLog(true, "设置" + parameterBean.getKey() + "=" + b + "---结果=" + state);
+                        } else {
+                            activity.setLog(true, "设置" + parameterBean.getKey() + "=参数不合法只能是true或者false");
+                        }
+                        break;
+                    case "IFloat":
+                        float v = Float.parseFloat(parameterBean.getValue());
+                        state = cameraManager.setFloatValue(parameterBean.getKey(), v);
+                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + v + "---结果=" + state);
+                        break;
+                    case "EnumValueByString":
+                        state = cameraManager.setEnumValueByString(parameterBean.getKey(), parameterBean.getValue());
+                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } else {
+            String s = "相机参数类型为空  不设置任何参数";
+            activity.setLog(s);
+            Log.e("Lyb", s);
+        }
+
     }
 }
