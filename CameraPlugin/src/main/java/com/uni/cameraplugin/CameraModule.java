@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 
+import com.uni.cameraplugin.activity.CameraActivity;
 import com.uni.cameraplugin.activity.DemoMainActivity;
 
 import io.dcloud.feature.uniapp.annotation.UniJSMethod;
@@ -20,11 +21,12 @@ public class CameraModule extends UniModule {
     public void openCamera(UniJSCallback callback) {
         Log.e(TAG, "openCamera--");
         if (callback != null) {
-//            callback.invoke(data);
+            //            callback.invoke(data);
         }
-        if(mUniSDKInstance != null && mUniSDKInstance.getContext() instanceof Activity) {
-            Intent intent = new Intent(mUniSDKInstance.getContext(), DemoMainActivity.class);
-            ((Activity)mUniSDKInstance.getContext()).startActivityForResult(intent, REQUEST_CODE);
+        if (mUniSDKInstance != null && mUniSDKInstance.getContext() instanceof Activity) {
+            Intent intent = new Intent(mUniSDKInstance.getContext(), CameraActivity.class);
+            intent.putExtra("debug", 1);
+            ((Activity) mUniSDKInstance.getContext()).startActivityForResult(intent, REQUEST_CODE);
         }
     }
 

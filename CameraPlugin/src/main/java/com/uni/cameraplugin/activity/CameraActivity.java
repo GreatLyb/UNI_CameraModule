@@ -43,6 +43,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraProcess cameraProcess;
     private OpenDeviceThread openDeviceThread;
     private int[] pixelFormatValue = {PixelFormat.MONO8, PixelFormat.YUV422, PixelFormat.RGB};
+    boolean debug = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class CameraActivity extends AppCompatActivity {
         tvLog = findViewById(R.id.tv_log);
         glViewGroup = findViewById(R.id.glViewGroup);
         imgTest = findViewById(R.id.img_test);
-
+        debug = getIntent().getIntExtra("debug", 0) == 1;
         initDevice();
     }
 
@@ -83,12 +84,19 @@ public class CameraActivity extends AppCompatActivity {
 
 
     private void setLog(boolean errorMsg, String msg) {
-        runOnUiThread(() -> {
-            tvLog.append("\n");
-            tvLog.append(errorMsg ? "错误信息" : "" + msg);
-            //            tvLog.setText(msg);
-            //            tvLog.setTextColor(errorMsg ? Color.parseColor("#eb4035") : Color.parseColor("#000000"));
-        });
+        if (debug){
+            runOnUiThread(() -> {
+                if (tvLog.getVisibility()==View.GONE){
+                    tvLog.setVisibility(View.VISIBLE);
+                }
+                tvLog.append("\n");
+                tvLog.append(errorMsg ? "错误信息" : "" + msg);
+                //            tvLog.setText(msg);
+                //            tvLog.setTextColor(errorMsg ? Color.parseColor("#eb4035") : Color.parseColor("#000000"));
+            });
+
+        }
+
     }
 
     public void getImage(View view) {
