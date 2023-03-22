@@ -7,7 +7,7 @@ import java.util.List;
  * @date 2023/3/22
  */
 public class CameraBean {
-    private int debug;
+    private int debug=1;
     private List<CameraParameterBean> parameterBeans;
 
     public int getDebug() {

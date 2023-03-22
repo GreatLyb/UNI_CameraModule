@@ -96,13 +96,8 @@ class CameraProcess {
 
     private String obtainJson() {
         CameraBean cameraBean = new CameraBean();
-        cameraBean.setDebug(0);
+        cameraBean.setDebug(1);
         List<CameraParameterBean> beans = new ArrayList<>();
-        CameraParameterBean bean = new CameraParameterBean();
-        bean.setType("IBoolean");
-        bean.setKey("ADCGainEnable");//ADC 增益使能
-        bean.setValue("1");
-        beans.add(bean);
         CameraParameterBean bean1 = new CameraParameterBean();
         bean1.setType("IFloat");
         bean1.setKey("ExposureTime");//曝光时间
@@ -125,16 +120,16 @@ class CameraProcess {
                 switch (parameterBean.getType()) {
                     case "IEnumeration":
                         state = cameraManager.setEnumValue(parameterBean.getKey(), Integer.parseInt(parameterBean.getValue()));
-                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     case "IString":
                         state = cameraManager.setStrValu(parameterBean.getKey(), parameterBean.getValue());
-                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     case "IInteger":
                         long i = Long.parseLong(parameterBean.getValue());
                         state = cameraManager.setIntValue(parameterBean.getKey(), i);
-                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + i + "---结果=" + state);
+                        activity.setLog("设置" + parameterBean.getKey() + "=" + i + "---结果=" + state);
                         break;
                     case "IBoolean":
                         boolean b = false;
@@ -148,19 +143,19 @@ class CameraProcess {
                         }
                         if (legitimate) {
                             state = cameraManager.setBoolValue(parameterBean.getKey(), b);
-                            activity.setLog(true, "设置" + parameterBean.getKey() + "=" + b + "---结果=" + state);
+                            activity.setLog("设置" + parameterBean.getKey() + "=" + b + "---结果=" + state);
                         } else {
-                            activity.setLog(true, "设置" + parameterBean.getKey() + "=参数不合法只能是true或者false");
+                            activity.setLog("设置" + parameterBean.getKey() + "=参数不合法只能是true或者false");
                         }
                         break;
                     case "IFloat":
                         float v = Float.parseFloat(parameterBean.getValue());
                         state = cameraManager.setFloatValue(parameterBean.getKey(), v);
-                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + v + "---结果=" + state);
+                        activity.setLog("设置" + parameterBean.getKey() + "=" + v + "---结果=" + state);
                         break;
                     case "EnumValueByString":
                         state = cameraManager.setEnumValueByString(parameterBean.getKey(), parameterBean.getValue());
-                        activity.setLog(true, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        activity.setLog( "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     default:
                         break;
