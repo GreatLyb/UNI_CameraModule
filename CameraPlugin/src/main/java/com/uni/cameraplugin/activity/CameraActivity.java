@@ -1,15 +1,12 @@
 package com.uni.cameraplugin.activity;
 
 import MvCameraControlWrapper.CameraControlException;
-import MvCameraControlWrapper.MvCameraControl;
 import MvCameraControlWrapper.MvCameraControlDefines;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -28,7 +25,9 @@ import com.uni.cameraplugin.R;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static MvCameraControlWrapper.MvCameraControlDefines.MV_OK;
 
@@ -269,8 +268,7 @@ public class CameraActivity extends AppCompatActivity {
                     multipleGLSurfaceView.setSize(w.intValue(), h.intValue());
                 }
             });
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             multipleGLSurfaceView.setLayoutParams(params);
             glViewGroup.addView(multipleGLSurfaceView);
 
@@ -323,33 +321,7 @@ public class CameraActivity extends AppCompatActivity {
                         canTakePhoto = true;
                         updateImage(bytes);
 
-                        String str =
-                                "width--------------" + info.width + "\n" +
-                                        "height-------------" + info.height + "\n" +
-                                        "pixelType----------" + info.pixelType.getnValue() + "\n" +
-                                        "frameNum-----------" + info.frameNum + "\n" +
-                                        "devTimeStampHigh---" + info.devTimeStampHigh + "\n" +
-                                        "ddevTimeStampLow----" + info.devTimeStampLow + "\n" +
-                                        "hostTimeStamp------" + info.hostTimeStamp + "\n" +
-                                        "frameLen-----------" + info.frameLen + "\n" +
-                                        "secondCount--------" + info.secondCount + "\n" +
-                                        "cycleCount---------" + info.cycleCount + "\n" +
-                                        "cycleOffset--------" + info.cycleOffset + "\n" +
-                                        "gain---------------" + info.gain + "\n" +
-                                        "exposureTime-------" + info.exposureTime + "\n" +
-                                        "averageBrightness--" + info.averageBrightness + "\n" +
-                                        "red----------------" + info.red + "\n" +
-                                        "green--------------" + info.green + "\n" +
-                                        "blue---------------" + info.blue + "\n" +
-                                        "frameCounter-------" + info.frameCounter + "\n" +
-                                        "triggerIndex-------" + info.triggerIndex + "\n" +
-                                        "input--------------" + info.input + "\n" +
-                                        "output-------------" + info.output + "\n" +
-                                        "offsetX------------" + info.offsetX + "\n" +
-                                        "offsetY------------" + info.offsetY + "\n" +
-                                        "chunkWidth---------" + info.chunkWidth + "\n" +
-                                        "chunkHeight--------" + info.chunkHeight + "\n" +
-                                        "lostPacket---------" + info.lostPacket;
+                        String str = "width--------------" + info.width + "\n" + "height-------------" + info.height + "\n" + "pixelType----------" + info.pixelType.getnValue() + "\n" + "frameNum-----------" + info.frameNum + "\n" + "devTimeStampHigh---" + info.devTimeStampHigh + "\n" + "ddevTimeStampLow----" + info.devTimeStampLow + "\n" + "hostTimeStamp------" + info.hostTimeStamp + "\n" + "frameLen-----------" + info.frameLen + "\n" + "secondCount--------" + info.secondCount + "\n" + "cycleCount---------" + info.cycleCount + "\n" + "cycleOffset--------" + info.cycleOffset + "\n" + "gain---------------" + info.gain + "\n" + "exposureTime-------" + info.exposureTime + "\n" + "averageBrightness--" + info.averageBrightness + "\n" + "red----------------" + info.red + "\n" + "green--------------" + info.green + "\n" + "blue---------------" + info.blue + "\n" + "frameCounter-------" + info.frameCounter + "\n" + "triggerIndex-------" + info.triggerIndex + "\n" + "input--------------" + info.input + "\n" + "output-------------" + info.output + "\n" + "offsetX------------" + info.offsetX + "\n" + "offsetY------------" + info.offsetY + "\n" + "chunkWidth---------" + info.chunkWidth + "\n" + "chunkHeight--------" + info.chunkHeight + "\n" + "lostPacket---------" + info.lostPacket;
 
 
                         Log.e("Lyb", "" + str);
@@ -388,14 +360,21 @@ public class CameraActivity extends AppCompatActivity {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] datas = baos.toByteArray();
-        bytesToImageFile(datas);
-        runOnUiThread(() -> imgTest.setImageBitmap(bitmap));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+        String format = formatter.format(date);
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + format + ".jpeg";
+        bytesToImageFile(datas, path);
+        runOnUiThread(() -> {
+            imgTest.setImageBitmap(bitmap);
+            Toast.makeText(this, "图片保存成功路径：" + path, Toast.LENGTH_SHORT).show();
+        });
         dealingPhoto = false;
     }
 
-    private void bytesToImageFile(byte[] bytes) {
+    private void bytesToImageFile(byte[] bytes, String path) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/aaa.jpeg");
+            File file = new File(path);
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(bytes, 0, bytes.length);
             fos.flush();
