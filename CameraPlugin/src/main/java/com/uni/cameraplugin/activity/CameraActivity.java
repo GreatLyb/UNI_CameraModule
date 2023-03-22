@@ -5,12 +5,10 @@ import MvCameraControlWrapper.MvCameraControlDefines;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -18,17 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.displayimage.IGlobalLayout;
 import com.example.displayimage.MultipleGLSurfaceView;
 import com.example.displayimage.PixelFormat;
 import com.uni.cameraplugin.R;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import static MvCameraControlWrapper.MvCameraControlDefines.MV_OK;
 
@@ -37,12 +30,13 @@ public class CameraActivity extends AppCompatActivity {
     private TextView tvLog;
     private RelativeLayout glViewGroup;
     private ImageView imgTest;
+    private Button btnTakePhoto;
 
     private CameraManager cameraManager;
     private ArrayList<MvCameraControlDefines.MV_CC_DEVICE_INFO> deviceList = new ArrayList<>();
     private CameraProcess cameraProcess;
     private OpenDeviceThread openDeviceThread;
-    private int[] pixelFormatValue = {PixelFormat.MONO8, PixelFormat.YUV422, PixelFormat.RGB};
+    private final int[] pixelFormatValue = {PixelFormat.MONO8, PixelFormat.YUV422, PixelFormat.RGB};
     boolean debug = true;
 
     @Override
@@ -52,6 +46,7 @@ public class CameraActivity extends AppCompatActivity {
         tvLog = findViewById(R.id.tv_log);
         glViewGroup = findViewById(R.id.glViewGroup);
         imgTest = findViewById(R.id.img_test);
+        btnTakePhoto = findViewById(R.id.tv_button);
         debug = getIntent().getIntExtra("debug", 0) == 1;
         initDevice();
     }
@@ -67,7 +62,7 @@ public class CameraActivity extends AppCompatActivity {
         try {
             deviceList.clear();
             deviceList = cameraManager.enumDevice();
-            if (deviceList.size() > 0) {
+            if (!deviceList.isEmpty()) {
                 cameraProcess.getDeviceInfo(deviceList.get(0));
                 setLog(false, "发现设备默认取第一个设备：" + cameraManager.GetSDKVersion());
                 openDevice();
@@ -77,38 +72,37 @@ public class CameraActivity extends AppCompatActivity {
         } catch (CameraControlException e) {
             e.printStackTrace();
             setLog(true, "枚举设备" + e);
-
         }
-
     }
 
 
+    /**
+     * 日志输出信息
+     *
+     * @param errorMsg
+     * @param msg
+     */
     private void setLog(boolean errorMsg, String msg) {
-        if (debug){
+        if (debug) {
             runOnUiThread(() -> {
-                if (tvLog.getVisibility()==View.GONE){
+                if (tvLog.getVisibility() == View.GONE) {
                     tvLog.setVisibility(View.VISIBLE);
                 }
                 tvLog.append("\n");
                 tvLog.append(errorMsg ? "错误信息" : "" + msg);
-                //            tvLog.setText(msg);
-                //            tvLog.setTextColor(errorMsg ? Color.parseColor("#eb4035") : Color.parseColor("#000000"));
             });
-
         }
-
     }
 
+    /**
+     * 拍照
+     *
+     * @param view
+     */
     public void getImage(View view) {
-
         if (!takePhoto && canTakePhoto && !dealingPhoto) {
             takePhoto = true;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(CameraActivity.this, "正在采集图像 请稍后...", Toast.LENGTH_LONG).show();
-                }
-            });
+            runOnUiThread(() -> Toast.makeText(CameraActivity.this, "正在采集图像 请稍后...", Toast.LENGTH_LONG).show());
         }
     }
 
@@ -120,13 +114,13 @@ public class CameraActivity extends AppCompatActivity {
                 getOneFrameThread.closeflag = true;
                 getOneFrameThread.flag = false;
             } else {
-                int nRet = cameraManager.stopDevice();
-                nRet = cameraManager.closeDevice();
+                cameraManager.stopDevice();
+                cameraManager.closeDevice();
                 cameraManager.destroyHandle();
             }
         } else {
-            int nRet = cameraManager.stopDevice();
-            nRet = cameraManager.closeDevice();
+            cameraManager.stopDevice();
+            cameraManager.closeDevice();
             cameraManager.destroyHandle();
         }
     }
@@ -168,17 +162,17 @@ public class CameraActivity extends AppCompatActivity {
                         }
 
                         int nRet1 = cameraManager.setFloatValue("ExposureTime", 700000f);
-                        if (nRet1 == 0) {
+                        if (nRet1 == MV_OK) {
                             Log.e("Lyb", "设置曝光时间成功");
                         } else {
                             setLog(true, "设置曝光时间失败:" + Integer.toHexString(nRet1));
                         }
-                        Integer GevSCPD = new Integer(0);
+                        Integer GevSCPD = 0;
                         nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
                         if (nRet != MV_OK) {
                             setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
                         } else {
-                            setLog(false, "GevSCPD = " + GevSCPD.intValue());
+                            setLog(false, "GevSCPD = " + GevSCPD);
                         }
 
                         nRet = cameraManager.setIntValue("GevSCPD", 2000);
@@ -187,69 +181,46 @@ public class CameraActivity extends AppCompatActivity {
                         } else {
                             setLog(true, "Set GevSCPD fail");
                         }
-
                         nRet = cameraManager.getIntValue("GevSCPD", GevSCPD);
                         if (nRet != MV_OK) {
                             setLog(true, "get GevSCPD fail nRet = " + Integer.toHexString(nRet));
                         } else {
-                            setLog(false, "GevSCPD = " + GevSCPD.intValue());
+                            setLog(false, "GevSCPD = " + GevSCPD);
                         }
                     }
-
-
-                    final Integer width = new Integer(0);
+                    final Integer width = 0;
                     nRet = cameraManager.getIntValue("Width", width);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(false, "get Width fail nRet = " + Integer.toHexString(nRet));
                         return;
                     }
-
-                    final Integer height = new Integer(0);
+                    final Integer height = 0;
                     nRet = cameraManager.getIntValue("Height", height);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(true, "get Height fail nRet = " + Integer.toHexString(nRet));
                         return;
                     }
-
-
                     nRet = cameraManager.setEnumValue("PixelFormat", pixelFormatValue[2]);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(true, "set PixelFormat fail nRet = " + Integer.toHexString(nRet));
                     }
-
-
-                    final Integer pixelFormat = new Integer(0);
+                    final Integer pixelFormat = 0;
                     nRet = cameraManager.getEnumValue("PixelFormat", pixelFormat);
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(true, "get PixelFormat fail nRet = " + Integer.toHexString(nRet));
                         return;
                     }
-
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updatePixelFormatView(pixelFormat, width, height);
-                        }
-                    });
-
-
+                    runOnUiThread(() -> updatePixelFormatView(pixelFormat, width, height));
                     nRet = cameraManager.startDevice();
                     if (nRet != MvCameraControlDefines.MV_OK) {
                         setLog(false, "startDevice" + Integer.toHexString(nRet));
                     }
-
-
                     if (getOneFrameThread == null) {
-                        getOneFrameThread = new GetOneFrameThread();
-                        getOneFrameThread.flag = true;
-                        getOneFrameThread.runFlag = true;
-                        getOneFrameThread.start();
-                    } else {
-                        getOneFrameThread.flag = true;
-                        getOneFrameThread.runFlag = true;
-                        getOneFrameThread.start();
+                        getOneFrameThread = new GetBitMapThread();
                     }
+                    getOneFrameThread.flag = true;
+                    getOneFrameThread.runFlag = true;
+                    getOneFrameThread.start();
                 }
             } catch (CameraControlException e) {
                 e.printStackTrace();
@@ -270,12 +241,9 @@ public class CameraActivity extends AppCompatActivity {
             width = w;
             height = h;
             glViewGroup.removeAllViews();
-            multipleGLSurfaceView = new MultipleGLSurfaceView(this, new IGlobalLayout() {
-                @Override
-                public void lodfinish() {
-                    multipleGLSurfaceView.pixelFormat(pixelFormat);
-                    multipleGLSurfaceView.setSize(w.intValue(), h.intValue());
-                }
+            multipleGLSurfaceView = new MultipleGLSurfaceView(this, () -> {
+                multipleGLSurfaceView.pixelFormat(pixelFormat);
+                multipleGLSurfaceView.setSize(w, h);
             });
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             multipleGLSurfaceView.setLayoutParams(params);
@@ -284,16 +252,21 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 将帧渲染到GLSurface 上
+     *
+     * @param data
+     */
     public void updateImage(byte[] data) {
         multipleGLSurfaceView.updateImage(data);
     }
 
-    GetOneFrameThread getOneFrameThread;
-    boolean takePhoto = false;
-    boolean canTakePhoto = false;
-    boolean dealingPhoto = false;
+    GetBitMapThread getOneFrameThread;
+    boolean takePhoto = false;//是否能拍照
+    boolean canTakePhoto = false;//拍照
+    boolean dealingPhoto = false;//正在处理图片
 
-    class GetOneFrameThread extends Thread {
+    class GetBitMapThread extends Thread {
         boolean runFlag = true;
         boolean flag = true;
         boolean stopflag = false;
@@ -304,9 +277,8 @@ public class CameraActivity extends AppCompatActivity {
         @Override
         public void run() {
             super.run();
-            Integer width = new Integer(0);
-            Integer height = new Integer(0);
-
+            Integer width = 0;
+            Integer height = 0;
             int nRetW = cameraManager.getIntValue("Width", width);
             int nRetH = cameraManager.getIntValue("Height", height);
             if (nRetW == MV_OK && nRetH == MV_OK) {
@@ -321,24 +293,21 @@ public class CameraActivity extends AppCompatActivity {
                 setLog(true, "获取图像宽高失败");
                 return;
             }
-
-
             while (runFlag) {
                 if (flag) {
                     int nRet = cameraManager.getBitMapTimeout(bytes, info, 1000);
                     if (nRet == 0) {
-                        canTakePhoto = true;
                         updateImage(bytes);
-
                         //                        String str = "width--------------" + info.width + "\n" + "height-------------" + info.height + "\n" + "pixelType----------" + info.pixelType.getnValue() + "\n" + "frameNum-----------" + info.frameNum + "\n" + "devTimeStampHigh---" + info.devTimeStampHigh + "\n" + "ddevTimeStampLow----" + info.devTimeStampLow + "\n" + "hostTimeStamp------" + info.hostTimeStamp + "\n" + "frameLen-----------" + info.frameLen + "\n" + "secondCount--------" + info.secondCount + "\n" + "cycleCount---------" + info.cycleCount + "\n" + "cycleOffset--------" + info.cycleOffset + "\n" + "gain---------------" + info.gain + "\n" + "exposureTime-------" + info.exposureTime + "\n" + "averageBrightness--" + info.averageBrightness + "\n" + "red----------------" + info.red + "\n" + "green--------------" + info.green + "\n" + "blue---------------" + info.blue + "\n" + "frameCounter-------" + info.frameCounter + "\n" + "triggerIndex-------" + info.triggerIndex + "\n" + "input--------------" + info.input + "\n" + "output-------------" + info.output + "\n" + "offsetX------------" + info.offsetX + "\n" + "offsetY------------" + info.offsetY + "\n" + "chunkWidth---------" + info.chunkWidth + "\n" + "chunkHeight--------" + info.chunkHeight + "\n" + "lostPacket---------" + info.lostPacket;
-
-
                         //                        Log.e("Lyb", "" + str);
+                        canTakePhoto = true;
+                        setBtnState(true);
                         if (takePhoto) {
                             takePhoto = false;
                             dealingPhoto = true;
-                            //处理图像
-                            dealFrameToPicture(bytes, info);
+                            File file = cameraProcess.dealFrameToPicture(bytes);
+                            setSaveImage(file);
+                            dealingPhoto = false;
                         }
                     }
 
@@ -352,10 +321,9 @@ public class CameraActivity extends AppCompatActivity {
                         }
                     } else if (closeflag) {
                         closeflag = false;
-                        int nRet = cameraManager.stopDevice();
-                        nRet = cameraManager.closeDevice();
+                        cameraManager.stopDevice();
+                        cameraManager.closeDevice();
                         cameraManager.destroyHandle();
-
                         runFlag = false;
                     }
                 }
@@ -363,36 +331,18 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private void dealFrameToPicture(byte[] bytes, MvCameraControlDefines.MV_FRAME_OUT_INFO info) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        //Bitmap转换成byte[]
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] datas = baos.toByteArray();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
-        String format = formatter.format(date);
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + format + ".jpeg";
-        File file = bytesToImageFile(datas, path);
-        bitmap.recycle();
+    private void setSaveImage(File file) {
         runOnUiThread(() -> {
-            Glide.with(this).load(file).into(imgTest);
-            Toast.makeText(this, "图片保存成功路径：" + path, Toast.LENGTH_SHORT).show();
+            if (file != null) {
+                Glide.with(CameraActivity.this).load(file).into(imgTest);
+                Toast.makeText(CameraActivity.this, "图片保存成功路径：" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(CameraActivity.this, "图片保存失败，请重试", Toast.LENGTH_SHORT).show();
+            }
         });
-        dealingPhoto = false;
     }
 
-    private File bytesToImageFile(byte[] bytes, String path) {
-        try {
-            File file = new File(path);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bytes, 0, bytes.length);
-            fos.flush();
-            fos.close();
-            return file;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private void setBtnState(boolean show) {
+        runOnUiThread(() -> btnTakePhoto.setVisibility(show ? View.VISIBLE : View.GONE));
     }
 }
