@@ -22,6 +22,7 @@ public class CameraModule extends UniModule {
         Log.e(TAG, "uniapp的jsonPara==" + jsonPara);
         if (mUniSDKInstance != null && mUniSDKInstance.getContext() instanceof Activity) {
             Intent intent = new Intent(mUniSDKInstance.getContext(), CameraActivity.class);
+            intent.putExtra("caremaPara",jsonPara);
             ((Activity) mUniSDKInstance.getContext()).startActivityForResult(intent, REQUEST_CODE);
         }
     }

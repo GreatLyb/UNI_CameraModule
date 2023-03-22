@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 import com.uni.cameraplugin.bean.CameraBean;
 import com.uni.cameraplugin.bean.CameraParameterBean;
@@ -88,8 +89,10 @@ class CameraProcess {
     }
 
     public CameraBean getCameraBean() {
-//        String body = activity.getIntent().getStringExtra("body");
-        String body = obtainJson();
+        String body = activity.getIntent().getStringExtra("caremaPara");
+        if (body.isEmpty()) {
+            body = obtainJson();
+        }
         CameraBean bean = JSON.parseObject(body, CameraBean.class);
         return bean;
     }
@@ -155,7 +158,7 @@ class CameraProcess {
                         break;
                     case "EnumValueByString":
                         state = cameraManager.setEnumValueByString(parameterBean.getKey(), parameterBean.getValue());
-                        activity.setLog( "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     default:
                         break;
