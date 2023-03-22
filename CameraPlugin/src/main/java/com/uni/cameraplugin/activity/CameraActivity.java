@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.displayimage.IGlobalLayout;
 import com.example.displayimage.MultipleGLSurfaceView;
 import com.example.displayimage.PixelFormat;
@@ -158,7 +159,7 @@ public class CameraActivity extends AppCompatActivity {
                             setLog(true, "Warning: Get Packet Size fail nRet" + Integer.toHexString(nPacketSize));
                         }
 
-                        int nRet1 = cameraManager.setFloatValue("ExposureTime", 1400000f);
+                        int nRet1 = cameraManager.setFloatValue("ExposureTime", 700000f);
                         if (nRet1 == 0) {
                             Log.e("Lyb", "设置曝光时间成功");
                         } else {
@@ -321,10 +322,10 @@ public class CameraActivity extends AppCompatActivity {
                         canTakePhoto = true;
                         updateImage(bytes);
 
-                        String str = "width--------------" + info.width + "\n" + "height-------------" + info.height + "\n" + "pixelType----------" + info.pixelType.getnValue() + "\n" + "frameNum-----------" + info.frameNum + "\n" + "devTimeStampHigh---" + info.devTimeStampHigh + "\n" + "ddevTimeStampLow----" + info.devTimeStampLow + "\n" + "hostTimeStamp------" + info.hostTimeStamp + "\n" + "frameLen-----------" + info.frameLen + "\n" + "secondCount--------" + info.secondCount + "\n" + "cycleCount---------" + info.cycleCount + "\n" + "cycleOffset--------" + info.cycleOffset + "\n" + "gain---------------" + info.gain + "\n" + "exposureTime-------" + info.exposureTime + "\n" + "averageBrightness--" + info.averageBrightness + "\n" + "red----------------" + info.red + "\n" + "green--------------" + info.green + "\n" + "blue---------------" + info.blue + "\n" + "frameCounter-------" + info.frameCounter + "\n" + "triggerIndex-------" + info.triggerIndex + "\n" + "input--------------" + info.input + "\n" + "output-------------" + info.output + "\n" + "offsetX------------" + info.offsetX + "\n" + "offsetY------------" + info.offsetY + "\n" + "chunkWidth---------" + info.chunkWidth + "\n" + "chunkHeight--------" + info.chunkHeight + "\n" + "lostPacket---------" + info.lostPacket;
+                        //                        String str = "width--------------" + info.width + "\n" + "height-------------" + info.height + "\n" + "pixelType----------" + info.pixelType.getnValue() + "\n" + "frameNum-----------" + info.frameNum + "\n" + "devTimeStampHigh---" + info.devTimeStampHigh + "\n" + "ddevTimeStampLow----" + info.devTimeStampLow + "\n" + "hostTimeStamp------" + info.hostTimeStamp + "\n" + "frameLen-----------" + info.frameLen + "\n" + "secondCount--------" + info.secondCount + "\n" + "cycleCount---------" + info.cycleCount + "\n" + "cycleOffset--------" + info.cycleOffset + "\n" + "gain---------------" + info.gain + "\n" + "exposureTime-------" + info.exposureTime + "\n" + "averageBrightness--" + info.averageBrightness + "\n" + "red----------------" + info.red + "\n" + "green--------------" + info.green + "\n" + "blue---------------" + info.blue + "\n" + "frameCounter-------" + info.frameCounter + "\n" + "triggerIndex-------" + info.triggerIndex + "\n" + "input--------------" + info.input + "\n" + "output-------------" + info.output + "\n" + "offsetX------------" + info.offsetX + "\n" + "offsetY------------" + info.offsetY + "\n" + "chunkWidth---------" + info.chunkWidth + "\n" + "chunkHeight--------" + info.chunkHeight + "\n" + "lostPacket---------" + info.lostPacket;
 
 
-                        Log.e("Lyb", "" + str);
+                        //                        Log.e("Lyb", "" + str);
                         if (takePhoto) {
                             takePhoto = false;
                             dealingPhoto = true;
@@ -364,23 +365,26 @@ public class CameraActivity extends AppCompatActivity {
         Date date = new Date(System.currentTimeMillis());
         String format = formatter.format(date);
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + format + ".jpeg";
-        bytesToImageFile(datas, path);
+        File file = bytesToImageFile(datas, path);
+        bitmap.recycle();
         runOnUiThread(() -> {
-            imgTest.setImageBitmap(bitmap);
+            Glide.with(this).load(file).into(imgTest);
             Toast.makeText(this, "图片保存成功路径：" + path, Toast.LENGTH_SHORT).show();
         });
         dealingPhoto = false;
     }
 
-    private void bytesToImageFile(byte[] bytes, String path) {
+    private File bytesToImageFile(byte[] bytes, String path) {
         try {
             File file = new File(path);
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(bytes, 0, bytes.length);
             fos.flush();
             fos.close();
+            return file;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 }
