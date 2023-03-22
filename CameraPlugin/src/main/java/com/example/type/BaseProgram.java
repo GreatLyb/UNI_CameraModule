@@ -1,8 +1,11 @@
 /*    */ package com.example.type;
 /*    */ 
-/*    */ import com.example.displayimage.IGLProgram;
-/*    */ import java.nio.ByteBuffer;
-/*    */ import java.nio.ByteOrder;
+/*    */
+
+import com.example.displayimage.IGLProgram;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 /*    */ 
 /*    */ public abstract class BaseProgram
 /*    */   implements IGLProgram

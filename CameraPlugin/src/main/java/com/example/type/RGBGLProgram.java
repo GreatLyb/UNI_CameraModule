@@ -1,15 +1,19 @@
 /*     */ package com.example.type;
 /*     */ 
-/*     */ import android.content.Context;
-/*     */ import android.opengl.GLES30;
-/*     */ import com.example.displayimage.IGLProgram;
-/*     */ import com.example.displayimage.ShaderHelper;
-/*     */ import com.example.displayimage.TextResourceReader;
-/*     */ import com.example.displayimage.Utils;
-import com.uni.display.R;
-/*     */ import java.nio.Buffer;
-/*     */ import java.nio.ByteBuffer;
-/*     */ import java.nio.ByteOrder;
+/*     */
+
+import android.content.Context;
+import android.opengl.GLES30;
+
+import com.example.displayimage.IGLProgram;
+import com.example.displayimage.ShaderHelper;
+import com.example.displayimage.TextResourceReader;
+import com.example.displayimage.Utils;
+import com.uni.cameraplugin.R;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 /*     */ 
 /*     */ 
 /*     */ public class RGBGLProgram

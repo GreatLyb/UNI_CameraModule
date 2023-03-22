@@ -1,14 +1,18 @@
 /*     */ package com.example.type;
 /*     */ 
-/*     */ import android.content.Context;
-/*     */ import android.opengl.GLES20;
-/*     */ import com.example.displayimage.IGLProgram;
-/*     */ import com.example.displayimage.ShaderHelper;
-/*     */ import com.example.displayimage.TextResourceReader1;
-/*     */ import com.example.displayimage.Utils;
-/*     */ import java.nio.Buffer;
-/*     */ import java.nio.ByteBuffer;
-/*     */ import java.nio.ByteOrder;
+/*     */
+
+import android.content.Context;
+import android.opengl.GLES20;
+
+import com.example.displayimage.IGLProgram;
+import com.example.displayimage.ShaderHelper;
+import com.example.displayimage.TextResourceReader1;
+import com.example.displayimage.Utils;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 /*     */ 
 /*     */ 
 /*     */ 

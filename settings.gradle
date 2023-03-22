@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 rootProject.name = "UNI_CameraModule"
 include ':app'
 include ':CameraPlugin'
-include ':display'

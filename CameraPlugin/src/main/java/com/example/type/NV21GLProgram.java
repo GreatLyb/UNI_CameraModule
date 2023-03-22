@@ -1,11 +1,15 @@
 /*     */ package com.example.type;
 /*     */ 
-/*     */ import android.opengl.GLES30;
-/*     */ import android.util.Log;
-/*     */ import com.example.displayimage.IGLProgram;
-/*     */ import java.nio.Buffer;
-/*     */ import java.nio.ByteBuffer;
-/*     */ import java.nio.ByteOrder;
+/*     */
+
+import android.opengl.GLES30;
+import android.util.Log;
+
+import com.example.displayimage.IGLProgram;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 /*     */ 
 /*     */ 
 /*     */ 

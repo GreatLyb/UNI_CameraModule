@@ -18,14 +18,10 @@ public class CameraModule extends UniModule {
 
     //run ui thread
     @UniJSMethod(uiThread = true)
-    public void openCamera(UniJSCallback callback) {
-        Log.e(TAG, "openCamera--");
-        if (callback != null) {
-            //            callback.invoke(data);
-        }
+    public void openCamera(String jsonPara) {
+        Log.e(TAG, "uniapp的jsonPara==" + jsonPara);
         if (mUniSDKInstance != null && mUniSDKInstance.getContext() instanceof Activity) {
             Intent intent = new Intent(mUniSDKInstance.getContext(), CameraActivity.class);
-            intent.putExtra("debug", 1);
             ((Activity) mUniSDKInstance.getContext()).startActivityForResult(intent, REQUEST_CODE);
         }
     }
