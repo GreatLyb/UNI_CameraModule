@@ -58,7 +58,7 @@ class CameraProcess {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] datas = baos.toByteArray();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ");
         Date date = new Date(System.currentTimeMillis());
         String format = formatter.format(date);
         //存储路径
