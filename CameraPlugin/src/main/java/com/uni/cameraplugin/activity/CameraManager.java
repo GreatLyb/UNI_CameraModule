@@ -71,6 +71,7 @@ public class CameraManager {
     public int getOneFrameTimeout(byte[] datas, MvCameraControlDefines.MV_FRAME_OUT_INFO info, int time) {
         return MvCameraControl.MV_CC_GetOneFrameTimeout(handle, datas, info, time);
     }
+
     public int getBitMapTimeout(byte[] datas, MvCameraControlDefines.MV_FRAME_OUT_INFO info, int time) {
         return MvCameraControl.MV_CC_GetBitmapTimeout(handle, datas, info, time);
     }
@@ -236,9 +237,12 @@ public class CameraManager {
     public int convertPixelType(MvCameraControlDefines.MV_CC_PIXEL_CONVERT_PARAM param) {
         return MvCameraControl.MV_CC_ConvertPixelType(handle, param);
     }
+
     public int SaveImage(MvCameraControlDefines.MV_SAVE_IMAGE_PARAM param) {
         return MvCameraControl.MV_CC_SaveImage(handle, param);
     }
 
-
+    public int ForceIp(String ip, String subNetMask, String defaultGateWay) {
+        return MvCameraControl.MV_GIGE_ForceIp(handle, ip,subNetMask,defaultGateWay);
+    }
 }

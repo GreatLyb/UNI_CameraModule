@@ -8,6 +8,9 @@ import java.util.List;
  */
 public class CameraBean {
     private int debug=1;
+    private String ip="";
+    private String subNetMask="";
+    private String defaultGateWay="";
     private List<CameraParameterBean> parameterBeans;
 
     public int getDebug() {
@@ -16,6 +19,30 @@ public class CameraBean {
 
     public void setDebug(int debug) {
         this.debug = debug;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getSubNetMask() {
+        return subNetMask;
+    }
+
+    public void setSubNetMask(String subNetMask) {
+        this.subNetMask = subNetMask;
+    }
+
+    public String getDefaultGateWay() {
+        return defaultGateWay;
+    }
+
+    public void setDefaultGateWay(String defaultGateWay) {
+        this.defaultGateWay = defaultGateWay;
     }
 
     public List<CameraParameterBean> getParameterBeans() {

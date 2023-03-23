@@ -1,11 +1,13 @@
 package com.uni.cameraplugin.activity;
 
 import MvCameraControlWrapper.CameraControlException;
+import MvCameraControlWrapper.MvCameraControl;
 import MvCameraControlWrapper.MvCameraControlDefines;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -153,6 +155,19 @@ public class CameraActivity extends AppCompatActivity {
                 } else {
                     setLog(false, "设备打开成功");
                     if (deviceList.get(0).transportLayerType == MvCameraControlDefines.MV_GIGE_DEVICE) {
+                        //设置IP
+                        if (!TextUtils.isEmpty(cameraBean.getIp())) {
+                            nRet = cameraManager.ForceIp(cameraBean.getIp(), cameraBean.getSubNetMask(), cameraBean.getDefaultGateWay());
+                            if (nRet == MvCameraControlDefines.MV_OK) {
+                                setLog("修改相机ip 成功"+"Ip=="+cameraBean.getIp()+"  subNetMask=="+cameraBean.getSubNetMask()+"  defaultGateWay=="+cameraBean.getDefaultGateWay());
+                            } else {
+                                setLog("MV_GIGE_ForceIpEx fail! nRet " + Integer.toHexString(nRet));
+                                return;
+                            }
+                        } else {
+                            setLog("IP为空 跳过设置IP地址");
+                        }
+                        //
                         int nPacketSize = cameraManager.getOptimalPacketSize();
                         if (nPacketSize > 0) {
                             nRet = cameraManager.setIntValue("GevSCPSPacketSize", nPacketSize);
