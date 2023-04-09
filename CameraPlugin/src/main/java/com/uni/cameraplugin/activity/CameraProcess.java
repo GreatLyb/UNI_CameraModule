@@ -1,5 +1,6 @@
 package com.uni.cameraplugin.activity;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -24,9 +25,12 @@ import MvCameraControlWrapper.MvCameraControlDefines;
  * @date 2023/3/20
  */
 class CameraProcess {
-    private CameraActivity activity;
 
-    public CameraProcess(CameraActivity activity) {
+    private static final String TAG="CameraProcess";
+
+    private Context activity;
+
+    public CameraProcess(Context activity) {
         this.activity = activity;
     }
 
@@ -39,9 +43,9 @@ class CameraProcess {
     public String getDeviceInfo(MvCameraControlDefines.MV_CC_DEVICE_INFO entity) {
         String str = "";
         if (entity.transportLayerType == MvCameraControlDefines.MV_GIGE_DEVICE) {
-            str = "[" + String.valueOf(0) + "]" + entity.gigEInfo.manufacturerName + "--" + entity.gigEInfo.serialNumber + "--" + entity.gigEInfo.deviceVersion + "--" + entity.gigEInfo.userDefinedName;
+            str = "[" + 0 + "]" + entity.gigEInfo.manufacturerName + "--" + entity.gigEInfo.serialNumber + "--" + entity.gigEInfo.deviceVersion + "--" + entity.gigEInfo.userDefinedName;
         } else {
-            str = "[" + String.valueOf(0) + "]" + entity.usb3VInfo.manufacturerName + "--" + entity.usb3VInfo.serialNumber + "--" + entity.usb3VInfo.deviceVersion + "--" + entity.usb3VInfo.userDefinedName;
+            str = "[" + 0 + "]" + entity.usb3VInfo.manufacturerName + "--" + entity.usb3VInfo.serialNumber + "--" + entity.usb3VInfo.deviceVersion + "--" + entity.usb3VInfo.userDefinedName;
         }
         return str;
     }
@@ -88,13 +92,12 @@ class CameraProcess {
         return null;
     }
 
-    public CameraBean getCameraBean() {
-        String body = activity.getIntent().getStringExtra("caremaPara");
+    public CameraBean getCameraBean(String caremaPara) {
+        String body = caremaPara;
         if (body.isEmpty()) {
             body = obtainJson();
         }
-        CameraBean bean = JSON.parseObject(body, CameraBean.class);
-        return bean;
+        return JSON.parseObject(body, CameraBean.class);
     }
 
     private String obtainJson() {
@@ -123,16 +126,16 @@ class CameraProcess {
                 switch (parameterBean.getType()) {
                     case "IEnumeration":
                         state = cameraManager.setEnumValue(parameterBean.getKey(), Integer.parseInt(parameterBean.getValue()));
-                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                       Log.e(TAG,"设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     case "IString":
                         state = cameraManager.setStrValu(parameterBean.getKey(), parameterBean.getValue());
-                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                        Log.e(TAG,"设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     case "IInteger":
                         long i = Long.parseLong(parameterBean.getValue());
                         state = cameraManager.setIntValue(parameterBean.getKey(), i);
-                        activity.setLog("设置" + parameterBean.getKey() + "=" + i + "---结果=" + state);
+                         Log.e(TAG, "设置" + parameterBean.getKey() + "=" + i + "---结果=" + state);
                         break;
                     case "IBoolean":
                         boolean b = false;
@@ -146,19 +149,19 @@ class CameraProcess {
                         }
                         if (legitimate) {
                             state = cameraManager.setBoolValue(parameterBean.getKey(), b);
-                            activity.setLog("设置" + parameterBean.getKey() + "=" + b + "---结果=" + state);
+                             Log.e(TAG, "设置" + parameterBean.getKey() + "=" + b + "---结果=" + state);
                         } else {
-                            activity.setLog("设置" + parameterBean.getKey() + "=参数不合法只能是true或者false");
+                             Log.e(TAG, "设置" + parameterBean.getKey() + "=参数不合法只能是true或者false");
                         }
                         break;
                     case "IFloat":
                         float v = Float.parseFloat(parameterBean.getValue());
                         state = cameraManager.setFloatValue(parameterBean.getKey(), v);
-                        activity.setLog("设置" + parameterBean.getKey() + "=" + v + "---结果=" + state);
+                         Log.e(TAG, "设置" + parameterBean.getKey() + "=" + v + "---结果=" + state);
                         break;
                     case "EnumValueByString":
                         state = cameraManager.setEnumValueByString(parameterBean.getKey(), parameterBean.getValue());
-                        activity.setLog("设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
+                         Log.e(TAG, "设置" + parameterBean.getKey() + "=" + parameterBean.getValue() + "---结果=" + state);
                         break;
                     default:
                         break;
@@ -166,7 +169,7 @@ class CameraProcess {
             }
         } else {
             String s = "相机参数类型为空  不设置任何参数";
-            activity.setLog(s);
+             Log.e(TAG, s);
             Log.e("Lyb", s);
         }
 

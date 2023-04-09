@@ -59,7 +59,7 @@ public class CameraActivity extends AppCompatActivity {
     private void initDevice() {
         cameraManager = new CameraManager();
         cameraProcess = new CameraProcess(this);
-        cameraBean = cameraProcess.getCameraBean();
+        cameraBean = cameraProcess.getCameraBean(getIntent().getStringExtra("caremaPara"));
         Log.e("Lyb", "SDK版本" + cameraManager.GetSDKVersion());
         setLog(false, "SDK版本" + cameraManager.GetSDKVersion());
         try {
